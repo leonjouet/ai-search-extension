@@ -27,8 +27,9 @@ class VintedFashionSearch {
     
     async loadSettings() {
         try {
-            const settings = await chrome.storage.local.get(['backendUrl']);
+            const settings = await chrome.storage.local.get(['backendUrl', 'apiKey']);
             this.backendUrl = settings.backendUrl || 'http://localhost:8000';
+            this.cachedApiKey = settings.apiKey || 'dev-secret-key';
         } catch (error) {
             console.error('Error loading settings:', error);
         }
@@ -44,7 +45,7 @@ class VintedFashionSearch {
         this.floatingButton = document.createElement('div');
         this.floatingButton.id = 'vinted-fashion-search-btn';
         this.floatingButton.innerHTML = `
-            <div class="fashion-search-icon">🔍</div>
+            <div class="fashion-search-icon"></div>
             <div class="fashion-search-tooltip">AI Fashion Search</div>
         `;
         
@@ -67,7 +68,7 @@ class VintedFashionSearch {
         this.searchOverlay.innerHTML = `
             <div class="fashion-search-modal">
                 <div class="fashion-search-header">
-                    <h3>🔍 AI Fashion Search</h3>
+                    <h3> AI Fashion Search</h3>
                     <button class="fashion-search-close">&times;</button>
                 </div>
                 <div class="fashion-search-content">
@@ -154,7 +155,8 @@ class VintedFashionSearch {
             const response = await fetch(`${this.backendUrl}/api/search`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 },
                 body: JSON.stringify({
                     query: query,
@@ -246,6 +248,10 @@ class VintedFashionSearch {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    getApiKey() {
+        return this.cachedApiKey || 'dev-secret-key';
     }
 }
 

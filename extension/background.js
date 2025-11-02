@@ -28,8 +28,9 @@ class FashionSearchBackground {
     
     async loadSettings() {
         try {
-            const settings = await chrome.storage.local.get(['backendUrl']);
+            const settings = await chrome.storage.local.get(['backendUrl', 'apiKey']);
             this.backendUrl = settings.backendUrl || 'http://localhost:8000';
+            this.cachedApiKey = settings.apiKey || 'dev-secret-key';
         } catch (error) {
             console.error('Error loading settings:', error);
         }
@@ -91,7 +92,8 @@ class FashionSearchBackground {
             const response = await fetch(`${this.backendUrl}/api/search`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 },
                 body: JSON.stringify({
                     query: query,
@@ -117,7 +119,8 @@ class FashionSearchBackground {
             const response = await fetch(`${this.backendUrl}/api/health`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 }
             });
             
@@ -159,7 +162,8 @@ class FashionSearchBackground {
             const response = await fetch(`${this.backendUrl}/api/stats`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 }
             });
             
@@ -204,6 +208,11 @@ class FashionSearchBackground {
         await this.checkBackendHealth();
     }
 }
+
+// Simple API key accessor; could be expanded to load from chrome.storage
+FashionSearchBackground.prototype.getApiKey = function() {
+    return this.cachedApiKey || 'dev-secret-key';
+};
 
 // Initialize background service
 const backgroundService = new FashionSearchBackground();

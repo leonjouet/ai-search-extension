@@ -7,9 +7,9 @@ DIR_PATH = os.getcwd()
 LOCAL_SAVE_PATH = "data/scrapped/"
 
 # Model and Database Configuration
-MODEL_PATH = DIR_PATH + "/" + "model/0_CLIPModel"
-CHROMA_DB_PATH = DIR_PATH + "/" + "data/chroma"
-COLLECTION_NAME = DIR_PATH + "/" + "vinted_dresses_db"
+MODEL_PATH = DIR_PATH + "/" + "backend/model/0_CLIPModel/"
+CHROMA_DB_PATH = DIR_PATH + "/" + "backend/data/chroma"
+COLLECTION_NAME = DIR_PATH + "/" + "backend/vinted_dresses_db"
 
 # Default catalog IDs for different categories
 CATALOG_IDS = {

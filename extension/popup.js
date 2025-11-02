@@ -23,17 +23,22 @@ class FashionSearchPopup {
         this.clearResults = document.getElementById('clearResults');
         this.backendUrlInput = document.getElementById('backendUrl');
         this.maxResultsInput = document.getElementById('maxResults');
+        this.apiKeyInput = document.getElementById('apiKey');
         this.status = document.getElementById('status');
     }
     
     async loadSettings() {
         try {
-            const settings = await chrome.storage.local.get(['backendUrl', 'maxResults']);
+            const settings = await chrome.storage.local.get(['backendUrl', 'maxResults', 'apiKey']);
             this.backendUrl = settings.backendUrl || 'http://localhost:8000';
             this.maxResults = settings.maxResults || 5;
+            this.cachedApiKey = settings.apiKey || 'dev-secret-key';
             
             this.backendUrlInput.value = this.backendUrl;
             this.maxResultsInput.value = this.maxResults;
+            if (this.apiKeyInput) {
+                this.apiKeyInput.value = this.cachedApiKey;
+            }
         } catch (error) {
             console.error('Error loading settings:', error);
         }
@@ -43,7 +48,8 @@ class FashionSearchPopup {
         try {
             await chrome.storage.local.set({
                 backendUrl: this.backendUrl,
-                maxResults: this.maxResults
+                maxResults: this.maxResults,
+                apiKey: this.cachedApiKey
             });
         } catch (error) {
             console.error('Error saving settings:', error);
@@ -70,6 +76,14 @@ class FashionSearchPopup {
             this.maxResults = parseInt(e.target.value);
             this.saveSettings();
         });
+
+        if (this.apiKeyInput) {
+            this.apiKeyInput.addEventListener('change', (e) => {
+                this.cachedApiKey = e.target.value.trim() || 'dev-secret-key';
+                this.saveSettings();
+                this.checkBackendConnection();
+            });
+        }
     }
     
     async checkBackendConnection() {
@@ -80,7 +94,8 @@ class FashionSearchPopup {
             const response = await fetch(`${this.backendUrl}/api/health`, {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 }
             });
             
@@ -119,7 +134,8 @@ class FashionSearchPopup {
             const response = await fetch(`${this.backendUrl}/api/search`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': this.getApiKey()
                 },
                 body: JSON.stringify({
                     query: query,
@@ -222,6 +238,11 @@ class FashionSearchPopup {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Retrieve API key from storage or fallback to dev key
+    getApiKey() {
+        return this.cachedApiKey || 'dev-secret-key';
     }
 }
 
