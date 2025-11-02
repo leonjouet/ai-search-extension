@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinted Fashion Search</title>
+    <style>
+        body {
+            width: 400px;
+            min-height: 500px;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .search-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+        
+        .search-input::placeholder {
+            color: #666;
+        }
+        
+        .search-button {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .search-button:hover {
+            background: #ff5252;
+            transform: translateY(-1px);
+        }
+        
+        .search-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            background: rgba(255, 255, 255, 0.344);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .results-count {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .clear-results {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .result-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .result-price {
+            color: #4ade80;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .result-similarity {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        
+        .error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .settings {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .settings h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .setting-item {
+            margin-bottom: 10px;
+        }
+        
+        .setting-label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+        
+        .setting-input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .status {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+        
+        .status.connected {
+            color: #4ade80;
+        }
+        
+        .status.disconnected {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Fashion Search</h1>
+        <p>Find similar items on Vinted</p>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Describe what you're looking for... (e.g., 'red floral dress')" />
+        <button id="searchButton" class="search-button">Search</button>
+    </div>
+    
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <div>Searching for similar items...</div>
+    </div>
+    
+    <div id="error" class="error"></div>
+    
+    <div id="results" class="results">
+        <div class="results-header">
+            <div class="results-count" id="resultsCount">0 results</div>
+            <button id="clearResults" class="clear-results">Clear</button>
+        </div>
+        <div id="resultsList"></div>
+    </div>
+    
+    <div class="settings">
+        <h3>Settings</h3>
+        <div class="setting-item">
+            <label class="setting-label">Backend URL</label>
+            <input type="text" id="backendUrl" class="setting-input" placeholder="http://localhost:8000" />
+        </div>
+        <div class="setting-item">
+            <label class="setting-label">Max Results</label>
+            <input type="number" id="maxResults" class="setting-input" value="5" min="1" max="20" />
+        </div>
+    </div>
+    
+    <div id="status" class="status">Checking connection...</div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

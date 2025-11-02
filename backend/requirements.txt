@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pandas
+numpy
+sentence-transformers
+chromadb
+cloudscraper
+browser_cookie3
+requests
+pillow
+torch
+tqdm

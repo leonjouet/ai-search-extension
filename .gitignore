@@ -1,0 +1,33 @@
+# Virtual environment (anywhere in the project)
+**/venv/
+**/.env/
+**/.venv/
+
+# IDE files
+**/.idea/
+**/.vscode/
+**/*.swp
+**/*.swo
+
+# Python cache and compiled files
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+
+# OS generated files
+**/.DS_Store
+**/Thumbs.db
+
+
+# Data 
+**/data
+# Logs
+**/logs
+# Model 
+**/model
+
+# Notebooks
+**.ipynb
+
+# Icons for extension
+**.png
