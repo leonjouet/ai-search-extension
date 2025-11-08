@@ -2,289 +2,119 @@
 
 An AI-powered Chrome extension that uses CLIP embeddings to provide semantic fashion search on Vinted.fr. Users can describe what they're looking for in natural language and find visually similar items.
 
-## 🚀 Features
+Repository layout
+- `backend/` - FastAPI backend that loads a CLIP model, stores embeddings in Chroma, and exposes search endpoints.
+- `extension/` - Chrome extension (Manifest V3) that calls the backend and injects a search UI into `vinted.fr` pages.
+- `model/` - Optional model files (large; may be provided separately).
 
-- **AI-Powered Search**: Uses CLIP model to understand both text queries and product images
-- **Real-time Results**: Search through thousands of fashion items with instant results
-- **Natural Language**: Describe what you want in plain English (e.g., "red floral summer dress")
-- **Visual Similarity**: Find items that look similar to your description
-- **Seamless Integration**: Works directly on Vinted.fr pages
-- **Daily Updates**: Automatically refreshes database with new items
+Summary
+- Backend: `backend/app.py` (FastAPI). Start with `uvicorn app:app` from the `backend` folder.
+- Extension: load `extension/` as an unpacked extension in Chrome.
+- The API requires an API key via the header `x-api-key`. Default is `dev-secret-key` unless you set `API_KEY` in the environment.
 
-## 🏗️ Architecture
+User experience
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Chrome        │    │   FastAPI       │    │   ChromaDB      │
-│   Extension     │◄──►│   Backend       │◄──►│   Vector Store  │
-│                 │    │                 │    │                 │
-│ • Popup UI      │    │ • Search API    │    │ • Embeddings   │
-│ • Content Script│    │ • Health Check  │    │ • Metadata     │
-│ • Background    │    │ • CORS Support  │    │ • Persistence  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌─────────────────┐
-                       │   CLIP Model    │
-                       │                 │
-                       │ • Text Encoder  │
-                       │ • Image Encoder │
-                       │ • Similarity    │
-                       └─────────────────┘
-```
+- Install and start the backend (Docker or locally). The backend must be reachable from your browser (default: `http://localhost:8000`).
+- Load the Chrome extension (`extension/`) as an unpacked extension.
+- On Vinted (`https://www.vinted.fr`), open the extension UI or use the injected floating search button.
+- Type a natural-language description (for example: "red floral summer dress" or "vintage denim jacket") and submit.
+- The extension sends the query to the backend (including `x-api-key`). The backend returns visually similar items based on CLIP embeddings.
+- Click any result to open the original Vinted listing in a new tab.
 
-## 📁 Project Structure
+Typical user goals covered:
+- Rapidly find items that match a visual/style description.
+- Browse results without leaving Vinted.
+- Open and inspect matching listings in new tabs.
 
-```
-ai-search-extension/
-├── backend/                    # FastAPI backend
-│   ├── main.py                # FastAPI app with search endpoints
-│   ├── scraper.py             # Vinted scraping and embedding logic
-│   ├── scrapper.py            # Original scraping functions
-│   ├── config.py              # Configuration settings
-│   ├── refresh_database.py    # Daily refresh script
-│   ├── setup_cron.sh          # Cron setup script
-│   ├── requirements.txt        # Python dependencies
-│   └── data/                  # ChromaDB storage
-├── extension/                 # Chrome extension
-│   ├── manifest.json          # Extension manifest
-│   ├── popup.html             # Extension popup UI
-│   ├── popup.js               # Popup functionality
-│   ├── content.js             # Content script for Vinted pages
-│   ├── content.css            # Styling for injected UI
-│   ├── background.js          # Service worker
-│   └── icons/                 # Extension icons
-├── model/                     # CLIP model files
-└── README.md                  # This file
-```
+Run with Docker (recommended for quick start)
 
-## 🛠️ Setup Instructions
-
-### Prerequisites
-
-- Python 3.9+
-- Chrome browser
-- 4GB+ RAM (for CLIP model)
-- 2GB+ disk space (for model and embeddings)
-
-### 1. Backend Setup
+1. Build the backend image:
 
 ```bash
-# Navigate to backend directory
 cd backend
+docker build -t ai-search-backend .
+```
 
-# Create virtual environment
+2. Run the container (exposes port 8000):
+
+```bash
+docker run --rm -p 8000:8000 \
+  -e API_KEY=dev-secret-key \
+  -v $(pwd)/data/chroma:/app/data/chroma \
+  -v $(pwd)/model:/app/model \
+  ai-search-backend
+```
+
+Notes:
+- Set `API_KEY` to a secure value for production. Requests must include `x-api-key: <your key>`.
+- If you have model files locally, mount `model/` into the container. Persist Chroma data by mounting `data/chroma`.
+
+Run locally (without Docker)
+
+1. Create and activate a virtual environment, then install dependencies:
+
+```bash
+cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Download CLIP model (if not already present)
-# The model should be in ./model/ directory
-# You can download it from Hugging Face or use your existing model
-
-# Test the scraper
-python scraper.py --search "red dress" --top-k 3
-
-# Populate database with initial data
-python scraper.py --refresh --catalog-ids 10 --max-pages 5
-
-# Start the API server
-python main.py
 ```
 
-The API will be available at `http://localhost:8000`
-
-### 2. Chrome Extension Setup
+2. (Optional) Set environment variables to override defaults:
 
 ```bash
-# Navigate to extension directory
-cd extension
-
-# Add your extension icons to the icons/ directory:
-# - icon16.png (16x16)
-# - icon32.png (32x32) 
-# - icon48.png (48x48)
-# - icon128.png (128x128)
+export API_KEY=dev-secret-key
+export MODEL_PATH=$(pwd)/../model/0_CLIPModel
+export CHROMA_DB_PATH=$(pwd)/data/chroma
 ```
 
-**Load Extension in Chrome:**
-
-1. Open Chrome and go to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top right)
-3. Click "Load unpacked"
-4. Select the `extension/` directory
-5. The extension should appear in your extensions list
-
-### 3. Daily Refresh Setup
+3. Start the server:
 
 ```bash
-# Navigate to backend directory
-cd backend
-
-# Run the cron setup script
-./setup_cron.sh
-
-# Or manually add to crontab:
-# 0 2 * * * cd /path/to/backend && python refresh_database.py
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-## 🚀 Usage
+Chrome extension (install)
 
-### For Users
+1. Open Chrome and go to `chrome://extensions/`.
+2. Enable Developer mode.
+3. Click "Load unpacked" and select the `extension/` directory.
+4. Visit `https://www.vinted.fr` and use the extension UI.
 
-1. **Install the Extension**: Load the unpacked extension in Chrome
-2. **Visit Vinted**: Go to any page on vinted.fr
-3. **Search**: 
-   - Click the floating search button (🔍) in bottom-right corner
-   - Or use the extension popup (click extension icon in toolbar)
-4. **Describe**: Enter your search in natural language:
-   - "red floral summer dress"
-   - "vintage denim jacket"
-   - "black leather boots"
-   - "casual white sneakers"
-5. **Browse Results**: Click on results to open them in new tabs
+By default the extension expects the backend at `http://localhost:8000`. Update the extension settings or source if you run the backend on a different host/port.
 
-### For Developers
+API quick reference
 
-**API Endpoints:**
+- GET /api/health — health and model/db status
+- GET /api/stats — database stats
+- POST /api/search — body: {"query": "text", "top_k": 5}
+
+All requests require the header `x-api-key: <your key>`.
+
+Example curl requests
 
 ```bash
-# Health check
-curl http://localhost:8000/api/health
+curl -H "x-api-key: dev-secret-key" http://localhost:8000/api/health
 
-# Search for items
-curl -X POST http://localhost:8000/api/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "red dress", "top_k": 5}'
-
-# Get database stats
-curl http://localhost:8000/api/stats
+curl -H "Content-Type: application/json" \
+  -H "x-api-key: dev-secret-key" \
+  -d '{"query":"red dress","top_k":5}' \
+  http://localhost:8000/api/search
 ```
 
-**Manual Database Refresh:**
+Configuration
 
-```bash
-# Dry run (see what would be done)
-python refresh_database.py --dry-run
+See `backend/config.py` for default paths and settings. Common environment overrides:
+- `API_KEY` — API key required by the backend
+- `MODEL_PATH` — path to CLIP model files
+- `CHROMA_DB_PATH` — path where Chroma stores data
 
-# Full refresh
-python refresh_database.py --catalog-ids 10 11 12 --max-pages 10
+Troubleshooting
 
-# Check logs
-tail -f logs/refresh.log
-```
+- 401 Unauthorized: check the `x-api-key` header and `API_KEY` env var.
+- No results: verify `/api/stats` shows items and that the model is loaded.
+- Backend errors: check logs printed by `uvicorn` or container logs.
 
-## 🔧 Configuration
+License and notes
 
-### Backend Configuration (`backend/config.py`)
-
-```python
-# Model and Database
-MODEL_PATH = "./model"
-CHROMA_DB_PATH = "./data/chroma"
-
-# Vinted API
-CATALOG_IDS = {
-    "dresses": 10,
-    "tops": 11,
-    "skirts": 12,
-    "pants": 13,
-    "shoes": 14,
-    "accessories": 15
-}
-
-# Scraping Settings
-MAX_PAGES_PER_SCRAPE = 20
-BATCH_SIZE = 6
-```
-
-### Extension Configuration
-
-The extension settings can be modified in the popup:
-- Backend URL (default: http://localhost:8000)
-- Max results per search (default: 5)
-
-## 📊 Performance
-
-- **Model Loading**: ~2-3 seconds on first startup
-- **Search Speed**: ~100-500ms per query
-- **Database Size**: ~1-2GB for 10,000 items
-- **Memory Usage**: ~2-4GB with model loaded
-- **Daily Refresh**: ~5-15 minutes depending on items
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Backend won't start:**
-```bash
-# Check if model directory exists
-ls -la model/
-
-# Check Python dependencies
-pip list | grep -E "(sentence-transformers|chromadb|fastapi)"
-
-# Check logs
-python main.py 2>&1 | tee backend.log
-```
-
-**Extension not working:**
-- Check if backend is running: `curl http://localhost:8000/api/health`
-- Check browser console for errors
-- Verify extension permissions in Chrome
-- Check if backend URL is correct in extension settings
-
-**Search returns no results:**
-- Check if database has items: `curl http://localhost:8000/api/stats`
-- Run manual refresh: `python refresh_database.py`
-- Check if model is loaded properly
-
-**Daily refresh not working:**
-- Check cron job: `crontab -l`
-- Check logs: `tail -f logs/refresh.log`
-- Test manually: `python refresh_database.py --dry-run`
-
-### Logs
-
-- **Backend logs**: Check console output or redirect to file
-- **Refresh logs**: `logs/refresh.log`
-- **Cron logs**: `logs/cron.log`
-- **Extension logs**: Chrome DevTools Console
-
-## 🔒 Security & Privacy
-
-- **No Data Collection**: Extension doesn't collect user data
-- **Local Processing**: All AI processing happens on your server
-- **No Tracking**: No analytics or user tracking
-- **Open Source**: Full source code available for review
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is for educational and demonstration purposes. Please respect Vinted's Terms of Service when scraping their data.
-
-## 🆘 Support
-
-For issues and questions:
-1. Check the troubleshooting section above
-2. Review the logs for error messages
-3. Test individual components (backend API, extension, database)
-4. Create an issue with detailed error information
-
-## 🎯 Future Enhancements
-
-- [ ] Multi-language support (Vinted operates in multiple countries)
-- [ ] Advanced filters (price range, size, brand)
-- [ ] "More like this" feature for individual items
-- [ ] User preferences and search history
-- [ ] Mobile app version
-- [ ] Real-time notifications for new similar items
+This repository is a demo. Scraping third-party sites may violate terms of service — use responsibly.

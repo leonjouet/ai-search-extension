@@ -45,7 +45,7 @@ class VintedFashionSearch {
         this.floatingButton = document.createElement('div');
         this.floatingButton.id = 'vinted-fashion-search-btn';
         this.floatingButton.innerHTML = `
-            <div class="fashion-search-icon"></div>
+            <div class="fashion-search-icon">🔍</div>
             <div class="fashion-search-tooltip">AI Fashion Search</div>
         `;
         
@@ -68,7 +68,7 @@ class VintedFashionSearch {
         this.searchOverlay.innerHTML = `
             <div class="fashion-search-modal">
                 <div class="fashion-search-header">
-                    <h3> AI Fashion Search</h3>
+                    <h3> 🔍 AI Fashion Search</h3>
                     <button class="fashion-search-close">&times;</button>
                 </div>
                 <div class="fashion-search-content">
