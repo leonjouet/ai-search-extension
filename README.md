@@ -32,17 +32,13 @@ Run with Docker (recommended for quick start)
 
 ```bash
 cd backend
-docker build -t ai-search-backend .
+docker build -t vinted-backend .
 ```
 
 2. Run the container (exposes port 8000):
-
+Models and Chroma DB are mounted in a separted volume to make the image lighter
 ```bash
-docker run --rm -p 8000:8000 \
-  -e API_KEY=dev-secret-key \
-  -v $(pwd)/data/chroma:/app/data/chroma \
-  -v $(pwd)/model:/app/model \
-  ai-search-backend
+docker run -d -p 8000:8000 -e API_KEY=dev-secret-key -v $(pwd)/model:/app/model -v $(pwd)/data/chroma:/app/data/chroma vinted-backend
 ```
 
 Notes:
