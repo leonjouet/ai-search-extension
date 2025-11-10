@@ -1,11 +1,16 @@
 // Content script for Vinted Fashion Recommender Extension
+// Default API base URL for the backend
+export const API_BASE_URL = 'http://localhost:8000';
+
+// Alternative production URL (uncomment when deploying)
+// export const API_BASE_URL = 'http://35.180.91.139:8000';
 
 class VintedFashionSearch {
     constructor() {
         this.isInitialized = false;
         this.searchOverlay = null;
         this.floatingButton = null;
-        this.backendUrl = 'http://localhost:8000';
+        this.backendUrl = API_BASE_URL;
         
         this.init();
     }

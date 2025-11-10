@@ -1,8 +1,11 @@
 // Background service worker for Vinted Fashion Recommender Extension
+export const API_BASE_URL = 'http://localhost:8000';
 
+// Alternative production URL (uncomment when deploying)
+// export const API_BASE_URL = 'http://35.180.91.139:8000';
 class FashionSearchBackground {
     constructor() {
-        this.backendUrl = 'http://localhost:8000';
+        this.backendUrl = API_BASE_URL;
         this.isBackendHealthy = false;
         this.lastHealthCheck = 0;
         this.healthCheckInterval = 30000; // 30 seconds
@@ -200,7 +203,7 @@ class FashionSearchBackground {
         
         // Set default settings
         await chrome.storage.local.set({
-            backendUrl: 'http://localhost:8000',
+            backendUrl: API_BASE_URL,
             maxResults: 5
         });
         

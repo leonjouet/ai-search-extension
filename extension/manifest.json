@@ -13,7 +13,8 @@
   
   "host_permissions": [
     "https://www.vinted.fr/*",
-    "http://localhost:8000/*"
+    "http://localhost:8000/*",
+    "http://35.180.91.139:8000/*"
   ],
   
   "action": {
