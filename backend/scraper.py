@@ -30,11 +30,11 @@ class VintedScraper:
     def __init__(
         self,
         local_save_path: str = config["local_save_path"],
-        api_link: str = config["vinted_api_endpoint"],
+        api_link: str = config["vinted_api_url"],
         vinted_link: str = config["vinted_base_url"],
         catalog_id: int = config["catalog_ids"]["dresses"],
         max_pages: int = config["max_pages"],
-        per_page: int = config["max_pages_per_scrape"],
+        per_page: int = config["items_per_page"],
     ):
         self.local_save_path = local_save_path
         self.vinted_link = vinted_link

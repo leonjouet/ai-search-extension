@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """
-Daily database refresh script for Vinted Fashion Recommender
-This script should be run via cron job to keep the database updated with new
-items.
+Database refresh script for Vinted Fashion search assistant backend.
 """
 
 import os
@@ -45,12 +43,12 @@ def main():
     parser.add_argument(
         "--save_data",
         action="store_true",
-        default=True,
+        default=False, #True,
         help="Save scraped data to CSV file",
     )
     parser.add_argument(
         "--load_data_path",
-        default="data/scrapped/scrapped_data.csv",
+        default=None, #"data/scrapped/scrapped_data.csv",
         help="Path to existing CSV data",
     )
 
@@ -101,7 +99,7 @@ def main():
 
             if not raw_items:
                 logger.warning(f"No items scraped for catalog {scraper.catalog_id}")
-                continue
+                sys.exit(1)
 
             logger.info(
                 f"Scraped {len(raw_items)} raw items from catalog "

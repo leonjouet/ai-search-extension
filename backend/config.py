@@ -24,11 +24,10 @@ CATALOG_IDS = {
 # Scraping Configuration
 VINTED_BASE_URL = "https://www.vinted.fr"
 VINTED_API_ENDPOINT = "/api/v2/catalog/items"
-
+VINTED_API_URL = VINTED_BASE_URL + VINTED_API_ENDPOINT
 DEFAULT_CATALOG_ID = 10  # Dresses
-MAX_PAGES_PER_SCRAPE = 20
 ITEMS_PER_PAGE = 96
-MAX_PAGES = 20
+MAX_PAGES = 5
 BATCH_SIZE = 6  # For embedding processing
 MAX_RETRIES = 3
 PAUSE_RANGE = (1.0, 2.5)  # Random pause between requests
@@ -65,10 +64,8 @@ def get_config():
         # Scraping
         "vinted_base_url": os.getenv("VINTED_BASE_URL", VINTED_BASE_URL),
         "vinted_api_endpoint": os.getenv("VINTED_API_ENDPOINT", VINTED_API_ENDPOINT),
+        "vinted_api_url": os.getenv("VINTED_API_URL", VINTED_API_URL),
         "max_pages": int(os.getenv("MAX_PAGES", MAX_PAGES)),
-        "max_pages_per_scrape": int(
-            os.getenv("MAX_PAGES_PER_SCRAPE", MAX_PAGES_PER_SCRAPE)
-        ),
         "items_per_page": int(os.getenv("ITEMS_PER_PAGE", ITEMS_PER_PAGE)),
         "batch_size": int(os.getenv("BATCH_SIZE", BATCH_SIZE)),
         "max_retries": int(os.getenv("MAX_RETRIES", MAX_RETRIES)),

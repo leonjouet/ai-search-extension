@@ -1,5 +1,5 @@
 // Popup script for Vinted Fashion Recommender Extension
-export const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Alternative production URL (uncomment when deploying)
 // export const API_BASE_URL = 'http://35.180.91.139:8000';
@@ -33,7 +33,7 @@ class FashionSearchPopup {
     async loadSettings() {
         try {
             const settings = await chrome.storage.local.get(['backendUrl', 'maxResults', 'apiKey']);
-            this.backendUrl = settings.backendUrl || 'http://localhost:8000';
+            this.backendUrl = settings.backendUrl || API_BASE_URL;
             this.maxResults = settings.maxResults || 5;
             this.cachedApiKey = settings.apiKey || 'dev-secret-key';
             

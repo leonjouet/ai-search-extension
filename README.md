@@ -26,24 +26,55 @@ Typical user goals covered:
 - Browse results without leaving Vinted.
 - Open and inspect matching listings in new tabs.
 
-Run with Docker (recommended for quick start)
+Run with Docker Compose (recommended)
 
-1. Build the backend image:
+1. Build and start the container:
+
+```bash
+cd backend
+docker-compose up -d --build
+```
+
+2. View logs:
+
+```bash
+docker-compose logs -f
+```
+
+3. Stop the container:
+
+```bash
+docker-compose down
+```
+
+Configuration options in `docker-compose.yml`:
+- `API_KEY` — Set to a secure value for production (default: `dev-secret-key`)
+- `API_HOST` — Server host (default: `0.0.0.0`)
+- `API_PORT` — Server port (default: `8000`)
+- `REFRESH_DB_ON_STARTUP` — Set to `true` to refresh ChromaDB on container startup (default: `false`)
+- `REFRESH_DATA_PATH` — Path to CSV data for database refresh (default: `data/scrapped/scrapped_data.csv`)
+
+The Docker setup mounts volumes for:
+- `model/` — CLIP model files (mounted to keep image lightweight)
+- `data/chroma/` — ChromaDB persistence
+- `data/scrapped/` — Scraped data storage
+- `logs/` — Application logs
+
+Run with Docker (manual)
+
+Alternatively, you can build and run manually:
 
 ```bash
 cd backend
 docker build -t vinted-backend .
+docker run -d -p 8000:8000 \
+  -e API_KEY=dev-secret-key \
+  -v $(pwd)/model:/app/model \
+  -v $(pwd)/data/chroma:/app/data/chroma \
+  -v $(pwd)/data/scrapped:/app/data/scrapped \
+  -v $(pwd)/logs:/app/logs \
+  vinted-backend
 ```
-
-2. Run the container (exposes port 8000):
-Models and Chroma DB are mounted in a separted volume to make the image lighter
-```bash
-docker run -d -p 8000:8000 -e API_KEY=dev-secret-key -v $(pwd)/model:/app/model -v $(pwd)/data/chroma:/app/data/chroma vinted-backend
-```
-
-Notes:
-- Set `API_KEY` to a secure value for production. Requests must include `x-api-key: <your key>`.
-- If you have model files locally, mount `model/` into the container. Persist Chroma data by mounting `data/chroma`.
 
 Run locally (without Docker)
 
@@ -100,10 +131,55 @@ curl -H "Content-Type: application/json" \
 
 Configuration
 
-See `backend/config.py` for default paths and settings. Common environment overrides:
-- `API_KEY` — API key required by the backend
-- `MODEL_PATH` — path to CLIP model files
-- `CHROMA_DB_PATH` — path where Chroma stores data
+The backend is configured via `backend/config.py`, which provides default values for all settings. Most settings can be overridden using environment variables.
+
+### Core Configuration (`config.py`)
+
+**Paths:**
+- `MODEL_PATH` — Path to CLIP model files (default: `model/0_CLIPModel/`)
+- `CHROMA_DB_PATH` — ChromaDB storage location (default: `data/chroma`)
+- `COLLECTION_NAME` — ChromaDB collection name (default: `vinted_dresses_db`)
+- `LOCAL_SAVE_PATH` — Path for scraped data storage (default: `data/scrapped/`)
+
+**API Settings:**
+- `API_HOST` — Server bind address (default: `0.0.0.0`)
+- `API_PORT` — Server port (default: `8000`)
+- `API_WORKERS` — Number of Uvicorn workers (default: `1`)
+- `API_KEY` — Authentication key (set via environment variable, default: `dev-secret-key`)
+
+**Scraping Settings:**
+- `VINTED_BASE_URL` — Vinted API base URL (default: `https://www.vinted.fr`)
+- `DEFAULT_CATALOG_ID` — Default category to scrape (default: `10` for dresses)
+- `MAX_PAGES` — Maximum pages to scrape per run (default: `5`)
+- `ITEMS_PER_PAGE` — Items per page (default: `96`)
+- `BATCH_SIZE` — Embedding processing batch size (default: `6`)
+- `PAUSE_RANGE` — Random pause between requests in seconds (default: `1.0-2.5`)
+
+**Database Refresh (Docker only):**
+- `REFRESH_DB_ON_STARTUP` — Refresh ChromaDB when container starts (default: `false`)
+- `REFRESH_DATA_PATH` — CSV file to load for database refresh (default: `data/scrapped/scrapped_data.csv`)
+
+### Environment Variable Overrides
+
+All settings in `config.py` can be overridden via environment variables. Common overrides:
+
+```bash
+export API_KEY=your-secure-key-here
+export API_PORT=8080
+export MAX_PAGES=10
+export CHROMA_DB_PATH=/custom/path/to/chroma
+```
+
+Or in `docker-compose.yml`:
+
+```yaml
+environment:
+  - API_KEY=your-secure-key
+  - API_PORT=8080
+  - REFRESH_DB_ON_STARTUP=true
+```
+
+See `backend/config.py` for the complete list of configurable settings.
 
 Troubleshooting
 

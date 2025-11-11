@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    image: vinted-backend
+    container_name: vinted-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY=dev-secret-key
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - REFRESH_DB_ON_STARTUP=True
+      - REFRESH_DATA_PATH=data/scrapped/scrapped_data.csv
+    volumes:
+      - ./model:/app/model
+      - ./data/chroma:/app/data/chroma
+      - ./data/scrapped:/app/data/scrapped
+      - ./logs:/app/logs
+    restart: unless-stopped
