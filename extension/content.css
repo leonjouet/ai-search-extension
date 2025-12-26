@@ -7,7 +7,7 @@
     right: 20px;
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #337580 0%, #254a55 100%);
     border-radius: 50%;
     cursor: pointer;
     z-index: 10000;
@@ -88,7 +88,7 @@
 }
 
 .fashion-search-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #337580 0%, #254a55 100%);
     color: white;
     padding: 20px;
     display: flex;
@@ -145,12 +145,12 @@
 }
 
 #fashion-search-input:focus {
-    border-color: #667eea;
+    border-color: #337580;
 }
 
 #fashion-search-submit {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #337580 0%, #254a55 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -162,7 +162,7 @@
 
 #fashion-search-submit:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(51, 117, 128, 0.4);
 }
 
 #fashion-search-submit:disabled {
@@ -183,7 +183,7 @@
     width: 32px;
     height: 32px;
     border: 3px solid #f3f3f3;
-    border-top: 3px solid #667eea;
+    border-top: 3px solid #337580;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 10px;
@@ -211,8 +211,8 @@
 }
 
 .fashion-search-result-item:hover {
-    border-color: #667eea;
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+    border-color: #337580;
+    box-shadow: 0 2px 10px rgba(51, 117, 128, 0.1);
     transform: translateY(-1px);
 }
 

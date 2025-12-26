@@ -2,6 +2,8 @@
 
 An AI-powered Chrome extension that uses CLIP embeddings to provide semantic fashion search on Vinted.fr. Users can describe what they're looking for in natural language and find visually similar items.
 
+<video src="https://github.com/user-attachments/assets/edfb1fa0-eff6-4f0a-95c2-22cf1850c237" width="320" height="240" controls></video>
+
 Repository layout
 - `backend/` - FastAPI backend that loads a CLIP model, stores embeddings in Chroma, and exposes search endpoints.
 - `extension/` - Chrome extension (Manifest V3) that calls the backend and injects a search UI into `vinted.fr` pages.
