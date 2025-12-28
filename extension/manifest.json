@@ -17,17 +17,6 @@
     "http://35.180.91.139:8000/*"
   ],
   
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Vinted Fashion Search",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  
   "content_scripts": [
     {
       "matches": ["https://www.vinted.fr/*"],
@@ -36,10 +25,6 @@
       "run_at": "document_end"
     }
   ],
-  
-  "background": {
-    "service_worker": "background.js"
-  },
   
   "icons": {
     "16": "icons/icon16.png",
@@ -50,7 +35,7 @@
   
   "web_accessible_resources": [
     {
-      "resources": ["popup.html", "content.css"],
+      "resources": ["content.css"],
       "matches": ["https://www.vinted.fr/*"]
     }
   ]
